@@ -30,7 +30,7 @@ class HomeController extends Controller
     public function index()
     {
 
-      
+
 
       $profiles = DB::table('profiles')
         ->join('users', 'users.id', '=', 'profiles.user_id')

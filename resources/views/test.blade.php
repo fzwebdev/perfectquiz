@@ -26,7 +26,7 @@
         <nav aria-label="breadcrumb">
           <ol class="breadcrumb">
             <li class="breadcrumb-item "><a class="text-primary" href="{{route('home')}}">Subject</a></li>
-            <li class="breadcrumb-item active" aria-current="page">{{$chapters[0]->subjectName}}</li>
+            <li class="breadcrumb-item active" aria-current="page">{{$subjects[0]->subjectName}}</li>
           </ol>
         </nav>
         <div class="d-sm-flex align-items-center justify-content-between mb-4">
@@ -53,7 +53,7 @@
 </ul> -->
 
         <!-- Content Row -->
-        <div class="row">
+        <div class="row mb-5">
             @if($chapters->count() > 0)
             <form class="" style="width:100%" action="{{route('test.createTest')}}" method="post">
               {{ csrf_field() }}
@@ -63,12 +63,12 @@
               <div class="col-md-12">
                 <div class="row">
                   @foreach ($chapters as $chapter)
-                    <div class="col-md-3 mb-4">
+                    <div class="col-md-6 mb-4">
                       <div class="pretty p-icon p-default p-curve p-pulse p-bigger">
                         <input type="checkbox" value="{{$chapter->chapterNo}}" name="subjectChapter[]" />
                         <div class="state p-danger-o">
                             <i class="icon mdi mdi-check"></i>
-                            <label class="text-white">{{$chapter->chapterName}}</label>
+                            <label class="">{{$chapter->chapterName}}</label>
                         </div>
                       </div>
                     </div>
@@ -79,6 +79,8 @@
                 <button type="submit" class="btn btn-danger btn-lg" name="continueTest">Continue Test</button>
               </div>
             </form>
+            @else
+            <h1>Chapters not Available</h1>
             @endif
 
         </div>
@@ -149,7 +151,7 @@
     </div>';
     jQuery.each( result, function( i, val ){
       console.log(val);
-      html += '<div class="col-md-6 mb-4">\
+      html += '<div class="col-md-6 mb-4" onclick="showChild()">\
         <div class="card border-left-danger shadow h-100 py-2">\
           <div class="card-body">\
             <div class="row no-gutters align-items-center">\

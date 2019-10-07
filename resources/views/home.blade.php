@@ -41,14 +41,15 @@
           @if($subject->childrens()->count() > 0)
 
           @else
-          <div style="cursor:pointer" class="mb-4 p-2" onclick="showChild(@php echo $subject->id @endphp,'@php echo $subject->subjectName @endphp')">
+
+          <div style="cursor:pointer" class="mb-4 p-2" onclick="showChild(@php echo $subject->id;  @endphp,'@php echo $subject->subjectName @endphp')">
             <div class="card shadow h-100 py-2" style="background-color:transparent;border:none">
               <div class="card-body">
                 <div class="row no-gutters align-items-center">
                   <div class="col mr-2">
                     <div class="h6 font-weight-normal text-gray-800 text-uppercase mb-1">
-                      <p class="text-center"><img src="{{asset('images')}}/{{$subject->subjectIcon}}" style="width:100px;"></p>
-                      <p class="text-center" style="color:#fff">{{$subject->subjectName}}</p>
+                      <p class="text-center"><img src="{{asset('images/perfect20Icons')}}/{{$subject->subjectIcon}}" style="width:100px;"></p>
+                      <p class="text-center" style="">{{$subject->subjectName}}</p>
                     </div>
                     <!-- <div class="h5 mb-0 font-weight-bold text-gray-800">$40,000</div> -->
                   </div>
@@ -110,12 +111,9 @@
          if(result.length === 0){
            var url = '{{ route("test.subject", ":id") }}';
            url = url.replace(':id', subjectId);
-           //console.log(url);
-           $("#go_to_test").attr("action",url);
-           //document.getElementById('go_to_test').submit();
            window.location.href = url;
          }else{
-           viewChild(result,subjectName);
+           viewChild(result,subjectName,subjectId);
            Swal.fire({
              html: $('#show_Subject_child').html(),
              showConfirmButton: false,
@@ -137,8 +135,10 @@
       <h1 class="h3 mb-0 text-center" style="color:#fff;">'+subjectName+'</h1>\
     </div>';
     jQuery.each( result, function( i, val ){
-      console.log(val);
-      html += '<div class="col-md-6 mb-4">\
+
+      var url = '{{ route("test.subject", ":id") }}';
+      url = url.replace(':id', val.subject_id);
+      html += '<div class="col-md-6 mb-4"><a href="'+url+'">\
         <div class="card border-left-danger shadow h-100 py-2">\
           <div class="card-body">\
             <div class="row no-gutters align-items-center">\
@@ -151,7 +151,7 @@
               </div>\
             </div>\
           </div>\
-        </div>\
+        </div></a>\
       </div>';
       //console.log(val);
     });

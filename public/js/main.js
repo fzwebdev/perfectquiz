@@ -13,10 +13,10 @@
             else {
                 $(this).removeClass('has-val');
             }
-        })    
+        })
     })
-  
-  
+
+
     /*==================================================================
     [ Validate ]*/
     // var input = $('.validate-input .input100');
@@ -77,64 +77,9 @@
           input.attr("type", "password");
         }
     });
-    
+
     // for form validation and insert into user table
 
-    $('#user_registration_form').parsley();
-
-    $("#user_registration_form").on('submit', function(event){
-        event.preventDefault();
-        if($("#user_registration_form").parsley().isValid()){
-            
-            $.ajax({
-                url: 'login',
-                type: "post",
-                data: $(this).serialize(),
-                beforeSend: function()
-                {
-                    $("#submit").attr('disabled','disabled');
-                    $("#submit").html('Submiting ......');
-                },
-                success: function(data)
-                {
-                    if(data.success==='Data Added'){
-                        $("#user_registration_form")[0].reset();
-                        $("#submit").attr('disabled', false);
-                        $("#submit").html("Submit");
-                        //$(".basic-single").select2("val", "");
-                        $("#user_registration_form").parsley().reset();
-                        //$("#error_msg").html(data.success);
-
-                        Swal.fire({
-                            type: 'success',
-                            title: 'Account created.. Please login with your email id and password',
-                            showConfirmButton: false,
-                            timer: 3500
-                        })
-                        setTimeout(function(){
-                            window.location.href = "login";
-                        }, 4000);
-                    }else{
-                        //alert(data);
-                        $("#submit").attr('disabled', false);
-                        $("#submit").html("Submit");
-                        Swal.fire({
-                            html: data.error_msg,
-                            type: 'error',
-                            showConfirmButton: false,
-                            timer: 1500
-                        })
-                        //$("#error_msg").html(data.error_msg);
-                    }
-                    
-                 },
-                error: function(error) {
-                    //console.log(error);
-                    //alert("error");
-                } 
-            });
-        }
-    });
 
     // for email exist or not exist
 

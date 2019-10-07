@@ -7,6 +7,8 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Arr;
 
 use App\Subject;
 
@@ -33,14 +35,18 @@ class TestController extends Controller
         // get subject chapters
       $chapters = DB::table('mstchapter')
         ->join('subjects', 'subjects.id', '=', 'mstchapter.subjectID')
+        ->select('mstchapter.*', 'subjects.subjectName')
         ->where('mstchapter.classID', '=', $profiles[0]->classID)
         ->where('mstchapter.subjectID', '=', $subjectId)
         ->get();
         // return $chapters;
       // get subject for user class
       $subjects = Subject::where('classID', 'like',  '%' . $profiles[0]->classID .'%')
+                            ->where('id', '=', $subjectId)
                      ->get();
-
+    // echo "<pre>";
+    // print_r($subjects);
+    // die();
       return view('test',compact('subjects','profiles','chapters'));
     }
 
@@ -53,7 +59,6 @@ class TestController extends Controller
     public function createTestPage(Request $request)
     {
       // get random 20 questions using class subject and chapters
-
       $questions = DB::table('mstcompetitiveqb')
         ->select("mstcompetitiveqb.questionID")
         ->orderBy(DB::raw('RAND()'))
@@ -66,7 +71,7 @@ class TestController extends Controller
         foreach ($questions as $que) {
           $queArray[] =  $que->questionID;
         }
-        //  echo implode(",",$queArray);
+         //  echo implode(",",$queArray);
         //inserting data to tblquestionset afetr get random questions
 
         $queSetId = DB::table('tblquestionset')->insertGetId([
@@ -81,52 +86,75 @@ class TestController extends Controller
         ]);
 
         if(!empty($queSetId)){
-          $getQuestionSet = DB::table('tblquestionset')
-            ->select("tblquestionset.*")
-            ->where('qSetID',  $queSetId)
-            ->get();
-          $getQuestionForTest = DB::table('mstcompetitiveqb')
-            ->select("mstcompetitiveqb.*")
-            // ->orderBy(DB::raw('RAND()'))
-            // ->take(20)
-            ->whereIn('questionID', explode(",",$getQuestionSet[0]->qSetSelectedQuestion))
-            ->where('classID',  $getQuestionSet[0]->classID)
-            ->where('subjectID', $getQuestionSet[0]->subjectID)
-            //->get()
-            ->paginate(2);
-            // if(count($getQuestionForTest) > 0){
-            //   $i = 1;
-            //   foreach ($getQuestionForTest as $questionForTest) {
-            //
-            //     //echo "<pre>";
-            //     // print_r($questionForTest);
-            //     echo "<b>Que</b>".$i."  ".$questionForTest->questionPart1."<br><br>";
-            //     echo "<b>Option 1</b>   "." ".$questionForTest->optionText1."<br>";
-            //     echo "<b>Option 2</b>   "." ".$questionForTest->optionText2."<br>";
-            //     echo "<b>Option 3</b>   "." ".$questionForTest->optionText3."<br>";
-            //     echo "<b>Option 4</b>   "." ".$questionForTest->optionText4."<br><br>";
-            //     echo "<hr>";
-            //     $i++;
-            //   }
-            // }else{
-            //   echo "Not Found";
-            // }
-            return view('showTest',compact('getQuestionForTest'));
+          //$getQuestionForTest = $this->attemptTest($queSetId);
+          return redirect()->route('test.attemptTest',$queSetId);
+          //return redirect()->view('test.attemptTest', $getQuestionForTest);
         }else{
           echo "Not insert";
         }
         //die();
     }
 
-    // function fetch_data(Request $request)
-    // {
-    //  if($request->ajax())
-    //  {
-    //   $data = DB::table('posts')->paginate(5);
-    //   return view('pagination_data', compact('data'))->render();
-    //  }
-    // }
+    public function attemptTest($queSetId)
+    {
+      $getQuestionSet = DB::table('tblquestionset')
+        ->select("tblquestionset.*")
+        ->where('qSetID',  $queSetId)
+        ->get();
+        $questionsIds = $getQuestionSet[0]->qSetSelectedQuestion;
+        $questions_Ids = explode(",",$questionsIds);
+      $getQuestionForTest = DB::table('mstcompetitiveqb')
+        ->select("mstcompetitiveqb.*")
+        ->whereIn('questionID', $questions_Ids)
+        ->where('classID',  $getQuestionSet[0]->classID)
+        ->where('subjectID', $getQuestionSet[0]->subjectID)
+        //->get()
+        ->paginate(5);
 
+        if (request()->ajax()) {
+           $page = $_GET['page'];
+          //die();
+          $selected=0;
+          $filename = Auth::user()->id.'_'.$getQuestionSet[0]->qSetID.'.json';
+          if(Storage::disk('local')->exists($filename)){
+             $contents = Storage::get($filename);
+             $contents = json_decode($contents,true);
+             echo "<pre>";
+             print_r($contents[$questions_Ids[$page-1]]);
+             echo $contents[$questions_Ids[$page-1]]['selectedAnswerID'];
+             echo "</pre>";
+            if(array_key_exists($questions_Ids[$page-1], $contents)){
+             $selected = $contents[$questions_Ids[$page-1]]['selectedAnswerID'];
+             }else{
+              $selected = 0;
+             }
+           }
+            return \View::make('fetchQuestion', array('getQuestionForTest' => $getQuestionForTest, 'getQuestionSet' => $getQuestionSet, 'selected' => $selected))->render();
+        }
+
+        echo "<pre>";
+
+        print_r($getQuestionForTest);
+
+        echo "</pre>";
+
+        return \View::make('showTest', array('getQuestionForTest' => $getQuestionForTest, 'getQuestionSet' => $getQuestionSet, 'selected' => 0 ));
+
+    }
+
+    public function saveAttemptedQuestionsInFile(Request $request){
+      echo $attemptedQuestionTemp = json_encode($request->input('attemptedQuestions'));
+      echo $filename = Auth::user()->id.'_'.$request->input('qSetId').'.json';
+
+  		if ( !Storage::put( $filename, $attemptedQuestionTemp))
+  		{
+  		        echo 'Unable to write the file';
+  		}
+  		else
+  		{
+  		        echo 'File written!';
+  		}
+   	  }
 
     /**
      * Show the form for creating a new resource.
@@ -137,10 +165,6 @@ class TestController extends Controller
     public function create(Request $request)
     {
 
-    }
-    public function FunctionName($value='')
-    {
-      // code...
     }
 
     /**

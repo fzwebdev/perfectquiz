@@ -38,10 +38,14 @@ View::composer(['*'], function ($view){
 Route::group(['as'=>'test.', 'prefix' => 'test'],  function(){
   Route::get('/subject/{subjectId}', 'TestController@showSubjectTest')->name('subject');
   Route::post('/createTest', 'TestController@createTestPage')->name('createTest');
-  Route::resource('test','TestController');
-  Route::get('/test/showTest', function () {
-      return view('showTest');
-  });
+  Route::resource('subject','TestController');
+  Route::get('/attemptTest/{queSetId}', 'TestController@attemptTest')->name('attemptTest');
+  // Route::get('/attemptTest', function () {
+  //     return view('showTest');
+  // })->name('attemptTest');
+  Route::post('/saveAttemptedQuestionsInFile', 'TestController@saveAttemptedQuestionsInFile')->name('saveAttemptedQuestionsInFile');
+  Route::get('/fetch_data', 'TestController@fetch_data');
 });
+
 
 Route::get('/showChild', 'HomeController@showChild');
