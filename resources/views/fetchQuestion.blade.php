@@ -5,15 +5,16 @@
 
   <input type="hidden" name="questionID" id="questionID" value="{{$questionForTest->questionID}}">
   <input type="hidden" name="marks" id="marks" value="1">
+  <input type="hidden" name="selectedId" value="{{$selected}}" id="selectedId">
     <span>
       <p class="question_style p-2 h5" style="">
         <input type="hidden" name="questionID" value="{{$questionForTest->questionID}}">
         <b class="text-danger p-2" style="">Question.&nbsp;&nbsp;{{ $getQuestionForTest->currentPage() }} </b>&nbsp;&nbsp; <span>{!!$questionForTest->questionPart1 !!}</span></p>
-        <!-- {!!$questionForTest->answerText!!} -->
+        
     </span>
     <div class="question_style2"></div>
     <div class="question_style2"></div>
-    <input type="hidden" value="0" id="answer">
+    <input type="hidden" value="{{$questionForTest->answerID}}" id="answer">
     @if($questionForTest->subActivityName === 'MCQ')
     <div class="col-md-6 custom-control custom-radio float-left">
       <input type="radio" name="Competitive" value="1" id="opt1" class="custom-control-input">

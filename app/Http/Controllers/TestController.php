@@ -66,6 +66,7 @@ class TestController extends Controller
         ->whereIn('chapterID', $request->input('subjectChapter'))
         ->where('classID',  $request->input('classID'))
         ->where('subjectID', $request->input('subjectID'))
+        ->where('subActivityName','MCQ')
         ->get();
 
         foreach ($questions as $que) {
@@ -103,14 +104,15 @@ class TestController extends Controller
         ->get();
         $questionsIds = $getQuestionSet[0]->qSetSelectedQuestion;
         $questions_Ids = explode(",",$questionsIds);
+
       $getQuestionForTest = DB::table('mstcompetitiveqb')
         ->select("mstcompetitiveqb.*")
         ->whereIn('questionID', $questions_Ids)
         ->where('classID',  $getQuestionSet[0]->classID)
         ->where('subjectID', $getQuestionSet[0]->subjectID)
+        ->orderByRaw(DB::raw("FIELD(questionID, $questionsIds)"))
         //->get()
-        ->paginate(5);
-
+        ->paginate(1);
         if (request()->ajax()) {
            $page = $_GET['page'];
           //die();
@@ -119,10 +121,10 @@ class TestController extends Controller
           if(Storage::disk('local')->exists($filename)){
              $contents = Storage::get($filename);
              $contents = json_decode($contents,true);
-             echo "<pre>";
-             print_r($contents[$questions_Ids[$page-1]]);
-             echo $contents[$questions_Ids[$page-1]]['selectedAnswerID'];
-             echo "</pre>";
+             // echo "<pre>";
+             // print_r($contents[$questions_Ids[$page-1]]);
+             // echo $contents[$questions_Ids[$page-1]]['selectedAnswerID'];
+             // echo "</pre>";
             if(array_key_exists($questions_Ids[$page-1], $contents)){
              $selected = $contents[$questions_Ids[$page-1]]['selectedAnswerID'];
              }else{
@@ -132,29 +134,23 @@ class TestController extends Controller
             return \View::make('fetchQuestion', array('getQuestionForTest' => $getQuestionForTest, 'getQuestionSet' => $getQuestionSet, 'selected' => $selected))->render();
         }
 
-        echo "<pre>";
-
-        print_r($getQuestionForTest);
-
-        echo "</pre>";
 
         return \View::make('showTest', array('getQuestionForTest' => $getQuestionForTest, 'getQuestionSet' => $getQuestionSet, 'selected' => 0 ));
 
     }
 
     public function saveAttemptedQuestionsInFile(Request $request){
-      echo $attemptedQuestionTemp = json_encode($request->input('attemptedQuestions'));
-      echo $filename = Auth::user()->id.'_'.$request->input('qSetId').'.json';
+      $attemptedQuestionTemp = json_encode($request->input('attemptedQuestions'));
+      $filename = Auth::user()->id.'_'.$request->input('qSetId').'.json';
+  		if ( !Storage::put( $filename, $attemptedQuestionTemp)){
+  		    echo 'Unable to write the file';
+  		}
+  		else{
+  		    echo 'File written!';
+  		}
+   	}
 
-  		if ( !Storage::put( $filename, $attemptedQuestionTemp))
-  		{
-  		        echo 'Unable to write the file';
-  		}
-  		else
-  		{
-  		        echo 'File written!';
-  		}
-   	  }
+
 
     /**
      * Show the form for creating a new resource.
@@ -175,7 +171,47 @@ class TestController extends Controller
      */
     public function store(Request $request)
     {
-        //
+      $filename = Auth::user()->id.'_'.$request->input('qSetId').'.json';
+      if(Storage::disk('local')->exists($filename)){
+         $contents = Storage::get($filename);
+         $contents = json_decode($contents,true);
+          if(DB::table('tblattemptquestion')->insert($contents)){
+            Storage::delete($filename);
+          return $request->input('qSetId');
+          }
+       }
+    }
+
+    public function showReport($queSetId)
+    {
+      $getReportOfTest = DB::table('tblattemptquestion')
+        ->join('mstcompetitiveqb', 'tblattemptquestion.questionID', '=', 'mstcompetitiveqb.questionID')
+        ->select('tblattemptquestion.*', 'mstcompetitiveqb.optionText1', 'mstcompetitiveqb.optionText2','mstcompetitiveqb.optionText3', 'mstcompetitiveqb.optionText4','mstcompetitiveqb.answerText')
+        ->where('qSetID',  $queSetId)
+        ->orderBy('qSequence', 'asc')
+        ->get();
+        // echo "<pre>";
+        // print_r($getReportOfTest);
+        // die();
+        $reportStatus = DB::table('tblattemptquestion')
+        ->select(DB::raw('sum(getMarks) as total_marks'), DB::raw("SEC_TO_TIME( SUM( TIME_TO_SEC( `totalTimeTaken` ) ) ) AS total_time "), DB::raw('count(attemptStatus) as total_attempts', [1]))
+        ->where('qSetID',  $queSetId)
+        //->groupBy(DB::raw('YEAR(date)') )
+        ->get();
+        // print_r($reportStatus);
+        // die();
+        return \View::make('showReport', array('getReportOfTest' => $getReportOfTest, 'reportStatus'=>$reportStatus));
+    }
+
+    public function getQuestion(Request $request)
+    {
+      $getQuestionForTest = DB::table('mstcompetitiveqb')
+        ->select("mstcompetitiveqb.*")
+        ->where('questionID', '=', $request->name)
+        ->get();
+
+        return $getQuestionForTest;
+      // echo "Yes";
     }
 
     /**
@@ -186,7 +222,7 @@ class TestController extends Controller
      */
     public function show($id)
     {
-        //
+
     }
 
     /**

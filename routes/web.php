@@ -35,7 +35,7 @@ View::composer(['*'], function ($view){
   $view->with('profiles',$profiles);
 });
 
-Route::group(['as'=>'test.', 'prefix' => 'test'],  function(){
+Route::group(['as'=>'test.', 'middleware' => ['auth'], 'prefix' => 'test'],  function(){
   Route::get('/subject/{subjectId}', 'TestController@showSubjectTest')->name('subject');
   Route::post('/createTest', 'TestController@createTestPage')->name('createTest');
   Route::resource('subject','TestController');
@@ -43,6 +43,8 @@ Route::group(['as'=>'test.', 'prefix' => 'test'],  function(){
   // Route::get('/attemptTest', function () {
   //     return view('showTest');
   // })->name('attemptTest');
+  Route::get('/showReport/{queSetId}', 'TestController@showReport')->name('showReport');
+  Route::get('/getQuestion/{queSetId}', 'TestController@getQuestion')->name('getQuestion');
   Route::post('/saveAttemptedQuestionsInFile', 'TestController@saveAttemptedQuestionsInFile')->name('saveAttemptedQuestionsInFile');
   Route::get('/fetch_data', 'TestController@fetch_data');
 });

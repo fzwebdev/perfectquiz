@@ -316,6 +316,9 @@ p{
               url:"?page="+page,
               success:function(data) {
                   $('#question').html(data);
+                  // console.log(data);
+                  var selectedIdkidata = $('#selectedId').val();
+                  $('#opt'+selectedIdkidata).attr('checked','checked');
               },
               error:function(err) {
                   console.log(err.responseText);
@@ -380,8 +383,8 @@ p{
 
 setTimeout(function(){
 	initializeObject();
-  alert('s');
-  console.log(attemptedQuestions);
+  // alert('s');
+  // console.log(attemptedQuestions);
 },1000);
 
 
@@ -408,8 +411,8 @@ var arrayNum;
 var qSetID = document.getElementById('qSetId').value;
 
 function saveAnswer(questionID){
-	//alert(page);
-  alert(questionID);
+	//alert(page);43798
+  // alert(questionID);
   var qSetId = document.getElementById('qSetId').value;
 	var userRefID = document.getElementById('userID').value;
 	var timeTaken = document.getElementById('quesTimer').innerHTML;
@@ -466,7 +469,7 @@ function saveAnswer(questionID){
 
 	}
 	count++;
-	console.log(attemptedQuestions);
+	// console.log(attemptedQuestions);
   $.ajaxSetup({
     headers: {
         'X-XSRF-TOKEN': decodeURIComponent(/XSRF-Token=([^;]*)/ig.exec(document.cookie)[1])
@@ -477,7 +480,7 @@ function saveAnswer(questionID){
 	   method:"post",
 	   data:{attemptedQuestions:attemptedQuestions,qSetId:qSetId},
      success:function(data) {
-         console.log(data)
+         // console.log(data)
      },
      error:function(err) {
          console.log(err);
@@ -500,8 +503,27 @@ function individualQuestionTimer(){
 	document.getElementById('quesTimer').innerHTML="0"+":"+minutes+":"+seconds;
 
 	}, 1000);
+}
 
-
+function saveAttemptedQuestionsInDatabase(){
+	 var questId = document.getElementById('questionID').value;
+  	saveAnswer(questId);
+   var qSet_ID = document.getElementById('qSetId').value;
+	$.ajax({
+    url:"{{route('test.subject.store')}}",
+    method:"POST",
+    data:{qSetId:qSet_ID},
+	   success:function(data)
+	   {
+       var url = '{{ route("test.showReport", ":id") }}';
+       url = url.replace(':id', data);
+       window.location.href = url;
+       //console.log(data);
+	   },
+     error:function(err) {
+         console.log(err);
+     }
+	 });
 }
 </script>
 @endsection
