@@ -53,12 +53,9 @@
                         </div>
                         <div class="form-group row mb-0 p-2">
                             <div class="col-md-8 offset-md-2">
-                                <div class="wrap-login100-form-btn">
-                                    <div class="login100-form-bgbtn"></div>
-                                    <button class="login100-form-btn" type="submit" name="submit">
-                                        {{ __('Login') }}
-                                    </button>
-                                </div>
+                                <button class="btn btn-danger btn-login btn-md" type="submit" name="submit">
+                                    {{ __('Login') }}
+                                </button>
                             </div>
                         </div>
                         <div class="form-group row mb-0 p-2">

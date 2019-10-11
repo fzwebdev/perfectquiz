@@ -44,6 +44,7 @@ Route::group(['as'=>'test.', 'middleware' => ['auth'], 'prefix' => 'test'],  fun
   //     return view('showTest');
   // })->name('attemptTest');
   Route::get('/showReport/{queSetId}', 'TestController@showReport')->name('showReport');
+  Route::get('/all/{id}', 'TestController@getAllTest')->name('all');
   Route::get('/getQuestion/{queSetId}', 'TestController@getQuestion')->name('getQuestion');
   Route::post('/saveAttemptedQuestionsInFile', 'TestController@saveAttemptedQuestionsInFile')->name('saveAttemptedQuestionsInFile');
   Route::get('/fetch_data', 'TestController@fetch_data');

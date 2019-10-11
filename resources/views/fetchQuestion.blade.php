@@ -10,7 +10,7 @@
       <p class="question_style p-2 h5" style="">
         <input type="hidden" name="questionID" value="{{$questionForTest->questionID}}">
         <b class="text-danger p-2" style="">Question.&nbsp;&nbsp;{{ $getQuestionForTest->currentPage() }} </b>&nbsp;&nbsp; <span>{!!$questionForTest->questionPart1 !!}</span></p>
-        
+
     </span>
     <div class="question_style2"></div>
     <div class="question_style2"></div>

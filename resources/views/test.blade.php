@@ -29,6 +29,11 @@
             <li class="breadcrumb-item active" aria-current="page">{{$subjects[0]->subjectName}}</li>
           </ol>
         </nav>
+        @if (session('msg'))
+          <div class="alert alert-success">
+              {{ session('msg') }}
+          </div>
+      @endif
         <div class="d-sm-flex align-items-center justify-content-between mb-4">
           <div class="alert alert-primary col-md-12" style="background-color:transparent;border:none">
             <h1 class="h3 mb-0 welcome-note">Select chapters for test</h1><br>

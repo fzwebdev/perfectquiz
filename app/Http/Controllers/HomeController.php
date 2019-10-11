@@ -19,7 +19,7 @@ class HomeController extends Controller
      */
     public function __construct()
     {
-        $this->middleware('auth');
+        $this->middleware(['auth','verified']);
     }
 
     /**
@@ -29,9 +29,6 @@ class HomeController extends Controller
      */
     public function index()
     {
-
-
-
       $profiles = DB::table('profiles')
         ->join('users', 'users.id', '=', 'profiles.user_id')
         ->where('users.id', '=', Auth::user()->id)

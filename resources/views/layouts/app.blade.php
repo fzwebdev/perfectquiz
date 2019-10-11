@@ -30,8 +30,8 @@
     <script src="{{asset('public/vendor/jquery/jquery-3.2.1.min.js')}}"></script>
     <script src="{{asset('public/js/parsley.js')}}"></script>
     <link rel="stylesheet" type="text/css" href="{{asset('public/css/pretty-checkbox.min.css')}}">
-    <link rel="stylesheet" type="text/css" href="{{asset('public/vendor/datatables/dataTables.bootstrap4.min.css')}}">
-
+    <link rel="stylesheet" type="text/css" href="//cdn.datatables.net/1.10.20/css/jquery.dataTables.min.css">
+    <link rel="stylesheet" type="text/css" href="{{asset('public/css/landing-page.css')}}">
     <style type="text/css">
         #app{
             background-image: url({{asset('images/bg-01.jpg')}});
@@ -48,7 +48,7 @@
         .Perfect20Logo{
           border: none;
           background-color: transparent;
-          width: 350px;
+          width: 350px !important;
         }
         .welcome-note{
           color: red !important;
@@ -67,7 +67,14 @@
         .breadcrumb a{
           font-size: 18px;
         }
-
+        .btn-login{
+          width: 100%;
+        }
+        .toggle-password{
+          position: absolute;
+          bottom: 10px;
+          right: 15px;
+        }
     </style>
 </head>
 <body>
@@ -79,24 +86,43 @@
         </main>
     </div>
     <!-- <script src="{{asset('js/sb-admin-2.min.js')}}"></script> -->
-    <script src="{{asset('public/vendor/bootstrap/js/bootstrap.bundle.min.js')}}"></script>
+    <script src="{{asset('public/vendor/bootstrap/js/bootstrap.min.js')}}"></script>
     <script type="text/javascript" src="{{ asset('public/js/app.js') }}"></script>
     <script src="{{asset('public/vendor/select2/select2.min.js')}}"></script>
     <!--===============================================================================================-->
     <script src="{{asset('public/js/sb-admin-2.min.js')}}"></script>
     <script src="{{asset('public/js/sweetalert2.all.min.js')}}"></script>
     <!-- <script src="{{asset('js/all.min.js')}}"></script> -->
-    <script src="{{asset('public/vendor/datatables/jquery.dataTables.min.js')}}" defer></script>
-    <script src="{{asset('public/vendor/datatables/dataTables.bootstrap4.min.js')}}"></script>
+    <!-- <script src="{{asset('public/vendor/datatables/jquery.dataTables.min.js')}}" defer></script> -->
+    <script src="//cdn.datatables.net/1.10.20/js/jquery.dataTables.min.js"></script>
+    <link rel="stylesheet" href="https://cdn.datatables.net/responsive/2.2.1/css/responsive.dataTables.min.css">
+<script src="https://cdn.datatables.net/responsive/2.2.1/js/dataTables.responsive.min.js"></script>
+    <!-- <script type="text/javascript" src=" https://cdn.datatables.net/rowreorder/1.2.6/js/dataTables.rowReorder.min.js"></script>
+    <script type="text/javascript" src="https://cdn.datatables.net/responsive/2.2.3/js/dataTables.responsive.min.js "></script> -->
     <script>
     $(document).ready(function() {
         $('#userClass').select2({
             placeholder: "Select Your Class",
             allowClear: true,
-            initSelection: function(element, callback) {
-            }
         });
-        $('#dataTable').DataTable();
+        //$('#report-table').DataTable();
+        $('#report-table')
+  				.addClass( 'nowrap' )
+  				.dataTable( {
+  					responsive: true,
+  					columnDefs: [
+  						{ targets: [-1, -3], className: 'dt-body-right' }
+  					]
+  				} );
+      $(".toggle-password").click(function() {
+          $(this).toggleClass("fa-eye fa-eye-slash");
+          var input = $("#password");
+          if (input.attr("type") == "password") {
+            input.attr("type", "text");
+          } else {
+            input.attr("type", "password");
+          }
+      });
     });
     </script>
 </body>

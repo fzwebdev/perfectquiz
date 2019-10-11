@@ -59,6 +59,12 @@ class TestController extends Controller
     public function createTestPage(Request $request)
     {
       // get random 20 questions using class subject and chapters
+
+      $checkQuestions = $this->checkQuestion($request->input('classID'),$request->input('subjectID'),Auth::user()->id);
+      $allQue = [];
+      foreach ($checkQuestions as $key => $value) {
+        $allQue = array_merge($allQue, explode(',',$value->qSetSelectedQuestion));
+      }
       $questions = DB::table('mstcompetitiveqb')
         ->select("mstcompetitiveqb.questionID")
         ->orderBy(DB::raw('RAND()'))
@@ -67,33 +73,59 @@ class TestController extends Controller
         ->where('classID',  $request->input('classID'))
         ->where('subjectID', $request->input('subjectID'))
         ->where('subActivityName','MCQ')
+        ->whereNotIn('questionID', $allQue)
         ->get();
 
-        foreach ($questions as $que) {
-          $queArray[] =  $que->questionID;
-        }
-         //  echo implode(",",$queArray);
-        //inserting data to tblquestionset afetr get random questions
+        if(count($questions) > 0 ){
+          if(count($questions) == 20){
+          foreach ($questions as $que) {
+            $queArray[] =  $que->questionID;
+          }
+          // print_r($queArray);
+          // die();
+          //inserting data to tblquestionset afetr get random questions
+          //die();
 
-        $queSetId = DB::table('tblquestionset')->insertGetId([
-          "qSetCode" => Str::random(10),
-          "classID" => $request->input('classID'),
-          "subjectID" => $request->input('subjectID'),
-          "qSetName" => 'p20_'.$request->input('subjectCode').'_'.$request->input('classID').'_'.time(),
-          "qSetSelectedQuestion" => implode(",",$queArray),
-          "userRefID" => Auth::user()->id,
-          "attemptStatus" => 1,
-          "status" => 1
-        ]);
+          $queSetId = DB::table('tblquestionset')->insertGetId([
+            "qSetCode" => Str::random(10),
+            "classID" => $request->input('classID'),
+            "subjectID" => $request->input('subjectID'),
+            "qSetName" => 'p20_'.$request->input('subjectCode').'_'.$request->input('classID').'_'.time(),
+            "qSetSelectedQuestion" => implode(",",$queArray),
+            "userRefID" => Auth::user()->id,
+            "attemptStatus" => 1,
+            "status" => 1
+          ]);
 
-        if(!empty($queSetId)){
-          //$getQuestionForTest = $this->attemptTest($queSetId);
-          return redirect()->route('test.attemptTest',$queSetId);
-          //return redirect()->view('test.attemptTest', $getQuestionForTest);
+          if(!empty($queSetId)){
+            //$getQuestionForTest = $this->attemptTest($queSetId);
+            return redirect()->route('test.attemptTest',$queSetId);
+            //return redirect()->view('test.attemptTest', $getQuestionForTest);
+            }else{
+              echo "Not insert";
+            }
+          }else{
+            return redirect()->route('test.subject',$request->input('subjectID'))->with('msg', 'Please Select maximum number of chapter');
+          }
         }else{
-          echo "Not insert";
-        }
-        //die();
+            return redirect()->route('test.subject',$request->input('subjectID'))->with('msg', 'Questions is not availabel.');
+          }
+    }
+
+    public function checkQuestion($classId,$subjectId,$userid)
+    {
+      $getallQuestionfromSet = DB::table('tblquestionset')
+        ->select("tblquestionset.*")
+        ->where('classID',  $classId)
+        ->where('subjectID',  $subjectId)
+        ->where('userRefID',  $userid)
+        ->get();
+        // if(count($getallQuestionfromSet) > 0){
+        //   return $getallQuestionfromSet;
+        // }else{
+        //   return 0;
+        // }
+        return $getallQuestionfromSet;
     }
 
     public function attemptTest($queSetId)
@@ -133,10 +165,7 @@ class TestController extends Controller
            }
             return \View::make('fetchQuestion', array('getQuestionForTest' => $getQuestionForTest, 'getQuestionSet' => $getQuestionSet, 'selected' => $selected))->render();
         }
-
-
         return \View::make('showTest', array('getQuestionForTest' => $getQuestionForTest, 'getQuestionSet' => $getQuestionSet, 'selected' => 0 ));
-
     }
 
     public function saveAttemptedQuestionsInFile(Request $request){
@@ -194,9 +223,9 @@ class TestController extends Controller
         // print_r($getReportOfTest);
         // die();
         $reportStatus = DB::table('tblattemptquestion')
-        ->select(DB::raw('sum(getMarks) as total_marks'), DB::raw("SEC_TO_TIME( SUM( TIME_TO_SEC( `totalTimeTaken` ) ) ) AS total_time "), DB::raw('count(attemptStatus) as total_attempts', [1]))
+        ->select(DB::raw('sum(getMarks) as total_marks'), DB::raw("SEC_TO_TIME( SUM( TIME_TO_SEC( `totalTimeTaken` ) ) ) AS total_time "), DB::raw('count(attemptStatus) as total_attempts'))
         ->where('qSetID',  $queSetId)
-        //->groupBy(DB::raw('YEAR(date)') )
+        ->where('attemptStatus', '=', 1)
         ->get();
         // print_r($reportStatus);
         // die();
@@ -211,6 +240,18 @@ class TestController extends Controller
         ->get();
 
         return $getQuestionForTest;
+      // echo "Yes";
+    }
+
+    public function getAllTest($id)
+    {
+      $getallTest = DB::table('tblquestionset')
+      ->join('subjects', 'tblquestionset.subjectID', '=', 'subjects.id')
+        ->select("tblquestionset.*",'subjects.subjectName')
+        ->where('userRefID', '=', $id)
+        ->get();
+        //return $getallTest;
+        return view('allreport', compact('getallTest'));
       // echo "Yes";
     }
 

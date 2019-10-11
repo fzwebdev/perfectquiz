@@ -94,21 +94,20 @@
                                 </label>
                             </div>
                         </div>
+                        <div class="form-group row mb-0">
+                            <div class="col-md-8 offset-md-2">
+                                <div class="wrap-login100-form-btn">
+                                    <button class="btn btn-danger btn-login btn-md" type="submit" id="submit" name="submit">
+                                        {{ __('Register') }}
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
                         <div class="form-group row" >
                             <div class="col-md-8 offset-md-2" style="margin-bottom: 10px;">
                                 <div class="text-right p-t-8 p-b-31">
                                     Have an accont ?
                                     <a href="{{ route('login') }}">{{ __('Login') }}</a>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="form-group row mb-0">
-                            <div class="col-md-12">
-                                <div class="wrap-login100-form-btn">
-                                    <div class="login100-form-bgbtn"></div>
-                                    <button class="login100-form-btn" type="submit" id="submit" name="submit">
-                                        {{ __('Register') }}
-                                    </button>
                                 </div>
                             </div>
                         </div>

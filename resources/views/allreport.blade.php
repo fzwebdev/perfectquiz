@@ -42,58 +42,37 @@
             <nav aria-label="breadcrumb">
               <ol class="breadcrumb">
                 <li class="breadcrumb-item "><a class="text-primary" href="{{route('home')}}"><b>Give another test</b></a></li>
-                <li class="breadcrumb-item "><a class="text-primary" href="{{route('test.all',Auth::user()->id)}}"><b>View test report</b></a></li>
               </ol>
             </nav>
             <div class="card shadow mb-4" style="width:100%;padding:20px;">
               <div class="card-header py-3">
-                <h4 class="mb-3 font-weight-bold text-primary text-center">Your test report</h6>
-                <div class="row mt-3">
-                  <div class="col-md-4 m-0 font-weight-bold text-danger">Your bbtained marks : <span class="text-primary">{{$reportStatus[0]->total_marks}}/20<span></div>
-                  <div class="col-md-4 m-0 font-weight-bold text-danger">Total time taken : <span class="text-primary">{{$reportStatus[0]->total_time}}/00:20:00<span></div>
-                  <div class="col-md-4 m-0 font-weight-bold text-danger">Attempted question : <span class="text-primary">{{$reportStatus[0]->total_attempts}}/20</span></div>
-                </div>
+                <h4 class="mb-3 font-weight-bold text-primary text-center">All attempted test</h6>
               </div>
               <div class="card">
                 <div class="table-responsive" style="" id="reportTable">
                   <table class="table table-bordered table-striped display nowrap" id="report-table" cellspacing="0" style="">
                     <thead>
                       <tr>
-              					<th>Question No.</th>
-              					<th>Correct Answer</th>
-              					<th>Your Answer</th>
-              					<th>Time Taken</th>
+              					<th>S.N.</th>
+              					<th>Test Name</th>
+                        <th>Class</th>
+                        <th>Subject</th>
+              					<th>Date</th>
               					<th>Attempt Status</th>
-                        <th>Status</th>
+                        <th>Action</th>
               				</tr>
                     </thead>
                     <tbody>
               				@php ($i=1) @endphp
-              					@foreach ($getReportOfTest as $getReportData)
+              					@foreach ($getallTest as $getall)
               				<tr>
-              					<td><button type="button" class="btn btn-info btn-sm" id="{{$getReportData->questionID}}" onclick="getQuestion(this.id);">{{$i}}</button></td>
-              					<td>{!! $getReportData->answerText !!}</td>
-              					<td>
-                          @switch($getReportData->selectedAnswerID)
-                            @case(1)
-                                {!!$getReportData->optionText1!!}
-                                @break
-                            @case(2)
-                                {!!$getReportData->optionText2!!}
-                                @break
-                            @case(3)
-                                {!!$getReportData->optionText3!!}
-                                @break
-                            @case(4)
-                                {!!$getReportData->optionText4!!}
-                                @break
-                            @default
-                                {{""}}
-                        @endswitch
-                        </td>
-              					<td>{{$getReportData->totalTimeTaken}}</td>
-              					<td>@if($getReportData->attemptStatus == 1)<span class="badge badge-success">Attempted</span>@else <span class="badge badge-warning">Not Attempted</span> @endif</td>
-                        <td>@if($getReportData->selectedAnswerID == $getReportData->correctAnswerID) <img src="{{asset('public/images/right.png')}}" class="img-thumbnail" style="border:none;">@else <img src="{{asset('public/images/wrong.png')}}" class="img-thumbnail" style="border:none;"> @endif </td>
+              					<td>{{$i}}</td>
+              					<td>{{$getall->qSetName}}</td>
+                        <td>{{$getall->classID}}</td>
+              					<td>{{$getall->subjectName}}</td>
+              					<td>{{$getall->dateOfAttempt}}</td>
+              					<td>@if($getall->attemptStatus == 1)<span class="badge badge-success">Attempted</span>@else <span class="badge badge-warning">Not Attempted</span> @endif</td>
+                        <td> <a href="{{route('test.showReport', $getall->qSetID)}}"><span class="badge badge-success">View Report</span></a> </td>
                       </tr>
                       @php ($i++) @endphp
               				@endforeach
